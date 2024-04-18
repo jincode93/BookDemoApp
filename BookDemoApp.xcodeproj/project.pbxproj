@@ -15,6 +15,7 @@
 		1ACFA7B62BD10511003F9EE0 /* BookDemoAppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ACFA7B52BD10511003F9EE0 /* BookDemoAppTests.swift */; };
 		1ACFA7C02BD10511003F9EE0 /* BookDemoAppUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ACFA7BF2BD10511003F9EE0 /* BookDemoAppUITests.swift */; };
 		1ACFA7C22BD10511003F9EE0 /* BookDemoAppUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ACFA7C12BD10511003F9EE0 /* BookDemoAppUITestsLaunchTests.swift */; };
+		1ACFA7D12BD10897003F9EE0 /* Const.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ACFA7D02BD10897003F9EE0 /* Const.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,6 +49,7 @@
 		1ACFA7BF2BD10511003F9EE0 /* BookDemoAppUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookDemoAppUITests.swift; sourceTree = "<group>"; };
 		1ACFA7C12BD10511003F9EE0 /* BookDemoAppUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookDemoAppUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		1ACFA7CE2BD10565003F9EE0 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
+		1ACFA7D02BD10897003F9EE0 /* Const.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Const.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +101,7 @@
 		1ACFA79D2BD10510003F9EE0 /* BookDemoApp */ = {
 			isa = PBXGroup;
 			children = (
+				1ACFA7CF2BD1088E003F9EE0 /* Network */,
 				1ACFA79E2BD10510003F9EE0 /* AppDelegate.swift */,
 				1ACFA7A02BD10510003F9EE0 /* SceneDelegate.swift */,
 				1ACFA7A22BD10510003F9EE0 /* HomeViewController.swift */,
@@ -124,6 +127,14 @@
 				1ACFA7C12BD10511003F9EE0 /* BookDemoAppUITestsLaunchTests.swift */,
 			);
 			path = BookDemoAppUITests;
+			sourceTree = "<group>";
+		};
+		1ACFA7CF2BD1088E003F9EE0 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				1ACFA7D02BD10897003F9EE0 /* Const.swift */,
+			);
+			path = Network;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -257,6 +268,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1ACFA7A32BD10510003F9EE0 /* HomeViewController.swift in Sources */,
+				1ACFA7D12BD10897003F9EE0 /* Const.swift in Sources */,
 				1ACFA79F2BD10510003F9EE0 /* AppDelegate.swift in Sources */,
 				1ACFA7A12BD10510003F9EE0 /* SceneDelegate.swift in Sources */,
 			);
