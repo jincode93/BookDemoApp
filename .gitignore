@@ -1,2 +1,3 @@
 *.xcconfig
-*/*.xcconfig
+.DS_Store
+.swp
