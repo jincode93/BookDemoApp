@@ -8,15 +8,10 @@
 import Foundation
 
 struct BookListModel: Decodable {
-    let item: [Book]?
+    let item: [Book]
     
     private enum CodingKeys: String, CodingKey {
         case item
-    }
-    
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        item = try container.decodeIfPresent([Book].self, forKey: .item)
     }
 }
         

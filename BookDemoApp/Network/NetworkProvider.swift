@@ -19,7 +19,7 @@ final class NetworkProvider {
         return BookNetwork(network: network)
     }
     
-//    func makeStubBookNetwork() -> BookNetworkType {
-//        return StubBookNetwork()
-//    }
+    func makeStubBookNetwork() -> BookNetworkType {
+        return StubBookNetwork()
+    }
 }

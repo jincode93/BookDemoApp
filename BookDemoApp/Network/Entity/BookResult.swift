@@ -10,7 +10,7 @@ import Foundation
 struct BookResult {
     let bestseller: BookListModel
     let editorChoice: BookListModel
-    let newSpecial: BookListModel
-    let newCategory: BookListModel
-    let newAll: BookListModel
+//    let newSpecial: BookListModel
+//    let newCategory: BookListModel
+//    let newAll: BookListModel
 }
