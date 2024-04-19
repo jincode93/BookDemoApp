@@ -8,18 +8,26 @@
 import Foundation
 
 struct BookListModel: Decodable {
-    let startIndex: Int
-    let item: [Book]
+    let item: [Book]?
+    
+    private enum CodingKeys: String, CodingKey {
+        case item
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        item = try container.decodeIfPresent([Book].self, forKey: .item)
+    }
 }
         
 struct Book: Decodable, Hashable {
-    let id: Int
+    let id: String
     let title: String
     let author: String
-    let pubdate: Date
+    let pubdate: String
     let desc: String
-    let sales: Int
-    let price: Int
+    let sales: Int?
+    let price: Int?
     let coverURL: String
     let publisher: String
     let reviewRank: Int
@@ -28,7 +36,7 @@ struct Book: Decodable, Hashable {
         case id = "isbn"
         case title
         case author
-        case pubdate
+        case pubdate = "pubDate"
         case desc = "description"
         case sales = "pricesales"
         case price = "pricestandard"
@@ -40,13 +48,13 @@ struct Book: Decodable, Hashable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        id = try container.decode(Int.self, forKey: .id)
+        id = try container.decode(String.self, forKey: .id)
         title = try container.decode(String.self, forKey: .title)
         author = try container.decode(String.self, forKey: .author)
-        pubdate = try container.decode(Date.self, forKey: .pubdate)
+        pubdate = try container.decode(String.self, forKey: .pubdate)
         desc = try container.decode(String.self, forKey: .desc)
-        sales = try container.decode(Int.self, forKey: .sales)
-        price = try container.decode(Int.self, forKey: .price)
+        sales = try container.decodeIfPresent(Int.self, forKey: .sales)
+        price = try container.decodeIfPresent(Int.self, forKey: .price)
         coverURL = try container.decode(String.self, forKey: .coverURL)
         publisher = try container.decode(String.self, forKey: .publisher)
         reviewRank = try container.decode(Int.self, forKey: .reviewRank)
@@ -55,11 +63,11 @@ struct Book: Decodable, Hashable {
 
 extension Book {
     private init(
-        id: Int,
+        id: String,
         title: String,
         author: String,
-        pubdate: Date,
-        desc: String, 
+        pubdate: String,
+        desc: String,
         sales: Int,
         price: Int,
         coverURL: String,
@@ -79,10 +87,10 @@ extension Book {
     }
     
     static var stub1: Book {
-        .init(id: 1111,
+        .init(id: "1111",
               title: "테스트책1",
               author: "Zerom",
-              pubdate: Date.now,
+              pubdate: "",
               desc: "테스트 모델 첫번째",
               sales: 10000,
               price: 12000,
@@ -92,10 +100,10 @@ extension Book {
     }
     
     static var stub2: Book {
-        .init(id: 2222,
+        .init(id: "2222",
               title: "테스트책2",
               author: "Zerom",
-              pubdate: Date.now,
+              pubdate: "",
               desc: "테스트 모델 두번째",
               sales: 8000,
               price: 11000,
@@ -105,10 +113,10 @@ extension Book {
     }
     
     static var stub3: Book {
-        .init(id: 3333,
+        .init(id: "3333",
               title: "테스트책3",
               author: "Zerom",
-              pubdate: Date.now,
+              pubdate: "",
               desc: "테스트 모델 세번째",
               sales: 24000,
               price: 28000,

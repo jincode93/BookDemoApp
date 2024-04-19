@@ -19,7 +19,7 @@ class Network<T: Decodable> {
     }
     
     func getItemList(path: String, query: String = "") -> Observable<T> {
-        let fullPath = "\(endpoint)\(path)?ttbkey=\(APIKey)&output=js\(query)"
+        let fullPath = "\(endpoint)\(path)?ttbkey=\(APIKey)&output=js&\(query)&MaxResults=10&SearchTarget=Book&Version=20131101"
         return RxAlamofire.data(.get, fullPath)
             .observe(on: queue)
             .debug()

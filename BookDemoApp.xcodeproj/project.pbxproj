@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		1A327DF82BD2372F002CAC1B /* BookNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A327DF72BD2372F002CAC1B /* BookNetwork.swift */; };
 		1A327DFC2BD23DF0002CAC1B /* NetworkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A327DFB2BD23DF0002CAC1B /* NetworkProvider.swift */; };
+		1A327DFE2BD24725002CAC1B /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A327DFD2BD24725002CAC1B /* HomeViewModel.swift */; };
+		1A327E002BD24983002CAC1B /* BookResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A327DFF2BD24983002CAC1B /* BookResult.swift */; };
 		1ACFA79F2BD10510003F9EE0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ACFA79E2BD10510003F9EE0 /* AppDelegate.swift */; };
 		1ACFA7A12BD10510003F9EE0 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ACFA7A02BD10510003F9EE0 /* SceneDelegate.swift */; };
 		1ACFA7A32BD10510003F9EE0 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ACFA7A22BD10510003F9EE0 /* HomeViewController.swift */; };
@@ -45,6 +47,8 @@
 /* Begin PBXFileReference section */
 		1A327DF72BD2372F002CAC1B /* BookNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookNetwork.swift; sourceTree = "<group>"; };
 		1A327DFB2BD23DF0002CAC1B /* NetworkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkProvider.swift; sourceTree = "<group>"; };
+		1A327DFD2BD24725002CAC1B /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
+		1A327DFF2BD24983002CAC1B /* BookResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookResult.swift; sourceTree = "<group>"; };
 		1ACFA79B2BD10510003F9EE0 /* BookDemoApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BookDemoApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1ACFA79E2BD10510003F9EE0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1ACFA7A02BD10510003F9EE0 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -120,6 +124,7 @@
 				1ACFA79E2BD10510003F9EE0 /* AppDelegate.swift */,
 				1ACFA7A02BD10510003F9EE0 /* SceneDelegate.swift */,
 				1ACFA7A22BD10510003F9EE0 /* HomeViewController.swift */,
+				1A327DFD2BD24725002CAC1B /* HomeViewModel.swift */,
 				1ACFA7A72BD10511003F9EE0 /* Assets.xcassets */,
 				1ACFA7A92BD10511003F9EE0 /* LaunchScreen.storyboard */,
 				1ACFA7AC2BD10511003F9EE0 /* Info.plist */,
@@ -167,6 +172,7 @@
 			isa = PBXGroup;
 			children = (
 				1ACFA7DE2BD10CF0003F9EE0 /* Book.swift */,
+				1A327DFF2BD24983002CAC1B /* BookResult.swift */,
 			);
 			path = Entity;
 			sourceTree = "<group>";
@@ -311,7 +317,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				1ACFA7D32BD1099C003F9EE0 /* Network.swift in Sources */,
+				1A327DFE2BD24725002CAC1B /* HomeViewModel.swift in Sources */,
 				1ACFA7A32BD10510003F9EE0 /* HomeViewController.swift in Sources */,
+				1A327E002BD24983002CAC1B /* BookResult.swift in Sources */,
 				1A327DF82BD2372F002CAC1B /* BookNetwork.swift in Sources */,
 				1ACFA7DF2BD10CF0003F9EE0 /* Book.swift in Sources */,
 				1ACFA7D12BD10897003F9EE0 /* Const.swift in Sources */,

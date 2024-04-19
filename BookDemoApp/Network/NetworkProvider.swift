@@ -11,7 +11,7 @@ final class NetworkProvider {
     private let endpoint: String
     
     init() {
-        self.endpoint = "http://www.aladin.co.kr/ttb/api/"
+        self.endpoint = "https://www.aladin.co.kr/ttb/api/"
     }
     
     func makeBookNetwork() -> BookNetworkType {
@@ -19,7 +19,7 @@ final class NetworkProvider {
         return BookNetwork(network: network)
     }
     
-    func makeStubBookNetwork() -> BookNetworkType {
-        return StubBookNetwork()
-    }
+//    func makeStubBookNetwork() -> BookNetworkType {
+//        return StubBookNetwork()
+//    }
 }
