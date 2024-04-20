@@ -7,6 +7,11 @@
 
 import Foundation
 
+enum APIType {
+    case aladin
+    case naver
+}
+
 final class NetworkProvider {
     private let endpoint: String
     

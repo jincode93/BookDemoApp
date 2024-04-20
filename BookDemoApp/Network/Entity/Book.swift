@@ -13,6 +13,10 @@ struct BookListModel: Decodable {
     private enum CodingKeys: String, CodingKey {
         case item
     }
+    
+    init(item: [Book]) {
+        self.item = item
+    }
 }
         
 struct Book: Decodable, Hashable {
@@ -63,8 +67,8 @@ extension Book {
         author: String,
         pubdate: String,
         desc: String,
-        sales: Int,
-        price: Int,
+        sales: Int?,
+        price: Int?,
         coverURL: String,
         publisher: String,
         reviewRank: Int
@@ -81,6 +85,19 @@ extension Book {
         self.reviewRank = reviewRank
     }
     
+    func newBook(newId: String) -> Book {
+        return Book(id: self.id + newId,
+                    title: self.title,
+                    author: self.author,
+                    pubdate: self.pubdate,
+                    desc: self.desc,
+                    sales: self.sales,
+                    price: self.price,
+                    coverURL: self.coverURL,
+                    publisher: self.publisher,
+                    reviewRank: self.reviewRank)
+    }
+    
     static var stub1: Book {
         .init(id: "1111",
               title: "테스트책1",
@@ -89,7 +106,7 @@ extension Book {
               desc: "테스트 모델 첫번째",
               sales: 10000,
               price: 12000,
-              coverURL: "",
+              coverURL: "https://image.aladin.co.kr/product/33818/43/cover200/k442930687_1.jpg",
               publisher: "1번 출판사",
               reviewRank: 10)
     }
@@ -102,7 +119,7 @@ extension Book {
               desc: "테스트 모델 두번째",
               sales: 8000,
               price: 11000,
-              coverURL: "",
+              coverURL: "https://image.aladin.co.kr/product/33562/77/cover200/k882939888_1.jpg",
               publisher: "2번 출판사",
               reviewRank: 8)
     }
@@ -115,7 +132,7 @@ extension Book {
               desc: "테스트 모델 세번째",
               sales: 24000,
               price: 28000,
-              coverURL: "",
+              coverURL: "https://image.aladin.co.kr/product/33626/89/cover200/k662939214_1.jpg",
               publisher: "3번 출판사",
               reviewRank: 3)
     }
