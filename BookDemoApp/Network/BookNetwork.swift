@@ -29,7 +29,7 @@ final class BookNetwork: BookNetworkType {
     }
     
     func getEditorChoiceList() -> Observable<BookListModel> {
-        return network.getItemList(path: listPath, query: "QueryType=ItemEditorChoice&CategoryId=170")
+        return network.getItemList(path: listPath, query: "QueryType=ItemEditorChoice&CategoryId=170&Cover=Big")
     }
     
     func getNewSpecialList() -> Observable<BookListModel> {
