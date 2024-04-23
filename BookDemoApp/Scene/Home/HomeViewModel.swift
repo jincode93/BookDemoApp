@@ -24,64 +24,40 @@ final class HomeViewModel {
     
     struct Input {
         let bookTrigger: Observable<Void>
-        let carouselIndexTrigger: Observable<Int>
     }
     
     struct Output {
-//        let bookResult: Observable<Result<BookResult, Error>>
-        let bestsellerList: Observable<Result<BookListModel, Error>>
-        let editorChoiceList: Observable<Result<BookListModel, Error>>
-        let curEditorChoiceBook: Observable<Result<Book, Error>>
+        let bookResult: Observable<Result<BookResult, Error>>
     }
     
     func transform(input: Input) -> Output {
-        
-        let bestsellerList: Observable<Result<BookListModel, Error>> = input.bookTrigger
-            .flatMapLatest { _ -> Observable<Result<BookListModel, Error>> in
-                return self.bookNetwork.getBestsellerList()
-                    .map { bookList -> Result<BookListModel, Error> in
-                        let items = bookList.item
-                        let firstList = items.map { $0.newBook(newId: "111") }
-                        let lastList = items.map { $0.newBook(newId: "222") }
-                        let newBookListModel: BookListModel = .init(item: firstList + items + lastList)
-                        return .success(newBookListModel)
-                    }.catch { error in
-                        return Observable.just(.failure(error))
-                    }
+        let bestsellerList: Observable<BookListModel> = self.bookNetwork.getBestsellerList()
+            .map { bookList in
+                let items = bookList.item
+                let firstList = items.map { $0.newBook(newId: "1") }
+                let lastList = items.map { $0.newBook(newId: "2") }
+                return .init(item: firstList + items + lastList)
             }
         
-        var editorChoiceArray = [Book]()
-        let editorChoiceList: Observable<Result<BookListModel, Error>> = input.bookTrigger
-            .flatMapLatest { _ -> Observable<Result<BookListModel, Error>> in
-                return self.bookNetwork.getEditorChoiceList()
-                    .map { bookList -> Result<BookListModel, Error> in
-                        let items = bookList.item
-                        let firstList = items.map { $0.newBook(newId: "111") }
-                        let lastList = items.map { $0.newBook(newId: "222") }
-                        
-//                        editorChoiceArray = firstList + items + lastList
-                        
-                        let newBookListModel: BookListModel = .init(item: firstList + items + lastList)
-                        return .success(newBookListModel)
-                    }.catch { error in
-                        return Observable.just(.failure(error))
-                    }
-            }
-    
-        let curEditorChoiceBook: Observable<Result<Book, Error>> = input.carouselIndexTrigger
-            .distinctUntilChanged()
-            .observe(on: MainScheduler.asyncInstance)
-            .flatMapLatest { index -> Observable<Result<Book, Error>> in
-                let newIndex = index - 1
-                if newIndex >= 0 && newIndex < editorChoiceArray.count {
-                    return Observable.just(.success(editorChoiceArray[newIndex]))
-                } else {
-                    return Observable.just(.failure(HomeError.notFoundEditorChoiceData))
-                }
+        let editorChoiceList: Observable<BookListModel> = self.bookNetwork.getEditorChoiceList()
+            .map { bookList in
+                let items = bookList.item
+                let firstList = items.map { $0.newBook(newId: "1") }
+                let lastList = items.map { $0.newBook(newId: "2") }
+                return .init(item: firstList + items + lastList)
             }
         
-        return Output(bestsellerList: bestsellerList,
-                      editorChoiceList: editorChoiceList,
-                      curEditorChoiceBook: curEditorChoiceBook)
+        let bookResult = input.bookTrigger.flatMapLatest { _ -> Observable<Result<BookResult, Error>> in
+            return Observable.combineLatest(
+                bestsellerList,
+                editorChoiceList
+            ) { bestseller, editorChoice -> Result<BookResult, Error> in
+                    .success(BookResult(bestseller: bestseller, editorChoice: editorChoice))
+            }.catch { error in
+                return Observable.just(.failure(error))
+            }
+        }
+        
+        return Output(bookResult: bookResult)
     }
 }
