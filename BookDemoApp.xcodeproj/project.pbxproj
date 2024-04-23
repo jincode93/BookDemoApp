@@ -29,6 +29,7 @@
 		1ACFA7D92BD109DC003F9EE0 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 1ACFA7D82BD109DC003F9EE0 /* RxSwift */; };
 		1ACFA7DC2BD10B65003F9EE0 /* RxAlamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 1ACFA7DB2BD10B65003F9EE0 /* RxAlamofire */; };
 		1ACFA7DF2BD10CF0003F9EE0 /* Book.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ACFA7DE2BD10CF0003F9EE0 /* Book.swift */; };
+		1ADA68662BD4F09A0019E5A0 /* CarouselFooterCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ADA68652BD4F09A0019E5A0 /* CarouselFooterCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -71,6 +72,7 @@
 		1ACFA7D02BD10897003F9EE0 /* Const.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Const.swift; sourceTree = "<group>"; };
 		1ACFA7D22BD1099C003F9EE0 /* Network.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Network.swift; sourceTree = "<group>"; };
 		1ACFA7DE2BD10CF0003F9EE0 /* Book.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Book.swift; sourceTree = "<group>"; };
+		1ADA68652BD4F09A0019E5A0 /* CarouselFooterCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarouselFooterCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -136,6 +138,7 @@
 				1A327E052BD2926D002CAC1B /* BestsellcerCell.swift */,
 				1A70A0C52BD3937C00815AFF /* HeaderView.swift */,
 				1A70A0C72BD397BA00815AFF /* EditorChoiceCell.swift */,
+				1ADA68652BD4F09A0019E5A0 /* CarouselFooterCell.swift */,
 			);
 			path = Cells;
 			sourceTree = "<group>";
@@ -372,6 +375,7 @@
 				1A70A0C62BD3937C00815AFF /* HeaderView.swift in Sources */,
 				1A327DFC2BD23DF0002CAC1B /* NetworkProvider.swift in Sources */,
 				1ACFA79F2BD10510003F9EE0 /* AppDelegate.swift in Sources */,
+				1ADA68662BD4F09A0019E5A0 /* CarouselFooterCell.swift in Sources */,
 				1ACFA7A12BD10510003F9EE0 /* SceneDelegate.swift in Sources */,
 				1A327E062BD2926D002CAC1B /* BestsellcerCell.swift in Sources */,
 			);

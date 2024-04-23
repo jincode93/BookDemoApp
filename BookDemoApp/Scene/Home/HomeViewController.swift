@@ -11,11 +11,13 @@ import RxSwift
 fileprivate enum Section: Hashable {
     case banner
     case carousel(String)
+    case carouselFooter
 }
 
 fileprivate enum Item: Hashable {
     case bannerImage(Book)
     case carouselImage(Book)
+    case carouselFooter(Book)
 }
 
 class HomeViewController: UIViewController {
@@ -36,12 +38,14 @@ class HomeViewController: UIViewController {
         collectionView.register(HeaderView.self,
                                 forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
                                 withReuseIdentifier: HeaderView.id)
+        collectionView.register(CarouselFooterCell.self, forCellWithReuseIdentifier: CarouselFooterCell.id)
         return collectionView
     }()
     
     private var dataSource: UICollectionViewDiffableDataSource<Section,Item>?
     
     let bookTrigger = PublishSubject<Void>()
+    let carouselIndexTrigger = PublishSubject<Int>()
     var bannerItemCount: Int = 0
     var carouselItemCount: Int = 0
     
@@ -74,23 +78,26 @@ class HomeViewController: UIViewController {
 extension HomeViewController {
     
     private func bindViewModel() {
-        let input = HomeViewModel.Input(bookTrigger: bookTrigger.asObservable())
+        let input = HomeViewModel.Input(bookTrigger: bookTrigger.asObservable(),
+                                        carouselIndexTrigger: carouselIndexTrigger.asObserver())
         let output = viewModel.transform(input: input)
         
         output.bestsellerList.bind { [weak self] result in
             switch result {
             case .success(let result):
                 self?.bannerItemCount = result.item.count / 3
+                
                 var snapshot = NSDiffableDataSourceSectionSnapshot<Item>()
                 let list = result.item.map { Item.bannerImage($0) }
                 let section = Section.banner
                 snapshot.append(list)
-                self?.dataSource?.apply(snapshot, to: section, animatingDifferences: true) { [weak self] in
-                    guard let self = self else { return }
-                    self.collectionView.scrollToItem(at: [0, self.bannerItemCount],
-                                                      at: .left,
-                                                      animated: false)
-                }
+                self?.dataSource?.apply(snapshot, to: section) 
+//                { [weak self] in
+//                    guard let self = self else { return }
+//                    self.collectionView.scrollToItem(at: [0, self.bannerItemCount],
+//                                                      at: .left,
+//                                                      animated: false)
+//                }
                 
             case .failure(let error):
                 print(error)
@@ -106,12 +113,28 @@ extension HomeViewController {
                 let list = result.item.map { Item.carouselImage($0) }
                 let section = Section.carousel("편집자 추천!")
                 snapshot.append(list)
-                self?.dataSource?.apply(snapshot, to: section, animatingDifferences: true) { [weak self] in
-                    guard let self = self else { return }
-                    self.collectionView.scrollToItem(at: [1, self.carouselItemCount],
-                                                      at: .left,
-                                                      animated: false)
-                }
+                
+                self?.dataSource?.apply(snapshot, to: section) 
+//                { [weak self] in
+//                    guard let self = self else { return }
+//                    self.collectionView.scrollToItem(at: [1, self.carouselItemCount],
+//                                                      at: .left,
+//                                                      animated: false)
+//                }
+//                
+            case .failure(let error):
+                print(error)
+            }
+        }.disposed(by: disposeBag)
+        
+        output.curEditorChoiceBook.bind { [weak self] result in
+            switch result {
+            case .success(let book):
+                var snapshot = NSDiffableDataSourceSectionSnapshot<Item>()
+                let item = Item.carouselFooter(book)
+                let section = Section.carouselFooter
+                snapshot.append([item])
+                self?.dataSource?.apply(snapshot, to: section, animatingDifferences: false)
                 
             case .failure(let error):
                 print(error)
@@ -134,6 +157,8 @@ extension HomeViewController {
                 return self?.createBannerSection()
             case .carousel:
                 return self?.createCarouselSection()
+            case .carouselFooter:
+                return self?.createCarouselFooterSection()
             default:
                 return self?.createBannerSection()
             }
@@ -150,14 +175,19 @@ extension HomeViewController {
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)
-        section.orthogonalScrollingBehavior = .groupPagingCentered
-        section.visibleItemsInvalidationHandler = { [weak self] (visibleItem, offset, environment) in
-            guard let lastIndexPath = visibleItem.last?.indexPath, let self = self else { return }
-            self.handleVisibleItemIndexPath(lastIndexPath,
-                                            sectionNum: 0,
-                                            count: self.bannerItemCount)
-        }
+        section.orthogonalScrollingBehavior = .groupPaging
         
+        section.visibleItemsInvalidationHandler = { [weak self] visibleItems, offset, environment in
+            // offset.y == 0 조건을 넣지 않으면 세로 스크롤에도 반응하게 됨
+            if offset.y == 0 {
+                guard let lastIndexPath = visibleItems.last?.indexPath, let self = self else { return }
+                if lastIndexPath.section == 0 {
+                    self.handleVisibleItemIndexPath(lastIndexPath.row,
+                                                    sectionNum: 0,
+                                                    count: self.bannerItemCount)
+                }
+            }
+        }
         return section
     }
     
@@ -166,7 +196,7 @@ extension HomeViewController {
                                               heightDimension: .fractionalHeight(1.0))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         
-        let groupSize = NSCollectionLayoutSize(widthDimension: .absolute(200),
+        let groupSize = NSCollectionLayoutSize(widthDimension: .absolute(220),
                                                heightDimension: .absolute(300))
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         
@@ -179,13 +209,10 @@ extension HomeViewController {
                                                                  elementKind: UICollectionView.elementKindSectionHeader,
                                                                  alignment: .topLeading)
         section.boundarySupplementaryItems = [header]
+        
         section.visibleItemsInvalidationHandler = { [weak self] visibleItems, offset, environment in
-            
             // Header를 제외하고 나머지 cellItem만 구별
-            let cellItems = visibleItems.filter {
-                $0.representedElementKind != UICollectionView.elementKindSectionHeader
-            }
-            
+            let cellItems = visibleItems.filter { $0.representedElementKind != UICollectionView.elementKindSectionHeader }
             let containerWidth = environment.container.contentSize.width
             
             cellItems.forEach { item in
@@ -194,39 +221,50 @@ extension HomeViewController {
                 // 셀이 컬렉션 뷰의 중앙에서 얼마나 떨어져 있는지 확인
                 let distanceFromCenter = abs(itemCenterRelativeToOffset - containerWidth / 2.0)
                 
-                // 만약 셀 중에 중앙에 위치한 셀이 있을 때 무한 스크롤을 위해 인덱스 재배치
-                if distanceFromCenter >= 0 && distanceFromCenter < 1 {
-                    guard let lastIndexPath = visibleItems.last?.indexPath, let self = self else { return }
-                    self.handleVisibleItemIndexPath(lastIndexPath,
-                                                    sectionNum: 1,
-                                                    count: self.carouselItemCount)
-                }
-                
                 // 셀의 이동에 따라서 스케일 조절
                 let minScale: CGFloat = 0.7
                 let maxScale: CGFloat = 1.0
                 let scale = max(maxScale - (distanceFromCenter / containerWidth), minScale)
-        
+                
                 item.transform = CGAffineTransform(scaleX: scale, y: scale)
+                
+                // 아이템이 중심부에 왔을 때 무한 스크롤을 위해 자동 스크롤 해주기
+                if distanceFromCenter >= 0 && distanceFromCenter < 1 && offset.y == 430 {
+                    guard let lastIndexPath = visibleItems.last?.indexPath, let self = self else { return }
+                    self.handleVisibleItemIndexPath(lastIndexPath.row,
+                                                    sectionNum: 1,
+                                                    count: self.carouselItemCount)
+                    self.carouselIndexTrigger.onNext(lastIndexPath.row)
+                }
             }
         }
         
         return section
     }
     
-    private func handleVisibleItemIndexPath(_ indexPath: IndexPath, sectionNum: Int, count: Int) {
-        switch indexPath.row {
-        case count - 1:
-            self.collectionView.scrollToItem(at: [sectionNum, count * 2 - 1],
-                                             at: .left,
-                                             animated: false)
-        case count * 2 + 1:
-            self.collectionView.scrollToItem(at: [sectionNum, count],
-                                             at: .left,
-                                             animated: false)
-        default:
-            break
+    private func handleVisibleItemIndexPath(_ index: Int, sectionNum: Int, count: Int) {
+        if sectionNum == 0 && index == count - 1 {
+            self.collectionView.scrollToItem(at: [0, count * 2 - 1], at: .left, animated: false)
+        } else if sectionNum == 0 && index == count * 2 + 1 {
+            self.collectionView.scrollToItem(at: [0, count], at: .left, animated: false)
+        } else if sectionNum == 1 && index == count - 1 {
+            self.collectionView.scrollToItem(at: [1, count * 2 - 2], at: .left, animated: false)
+        } else if sectionNum == 1 && index == count * 2 + 1 {
+            self.collectionView.scrollToItem(at: [1, count], at: .left, animated: false)
         }
+    }
+    
+    private func createCarouselFooterSection() -> NSCollectionLayoutSection {
+        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                              heightDimension: .fractionalHeight(1.0))
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        
+        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                               heightDimension: .absolute(100))
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+        
+        let section = NSCollectionLayoutSection(group: group)
+        return section
     }
 }
 
@@ -256,6 +294,15 @@ extension HomeViewController {
                     ) as? EditorChoiceCell
                     
                     cell?.configure(url: editor.coverURL)
+                    return cell
+                    
+                case .carouselFooter(let book):
+                    let cell = collectionView.dequeueReusableCell(
+                        withReuseIdentifier: CarouselFooterCell.id,
+                        for: indexPath
+                    ) as? CarouselFooterCell
+                    
+                    cell?.configure(title: book.title, desc: book.desc)
                     return cell
                 }
             })
