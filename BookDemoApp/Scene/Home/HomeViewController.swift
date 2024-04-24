@@ -12,12 +12,14 @@ enum HomeSection: Hashable {
     case banner
     case carousel(String)
     case carouselFooter
+    case horizontal(String)
 }
 
 enum HomeItem: Hashable {
-    case bannerImage(Book)
-    case carouselImage(Book)
-    case carouselFooter(Book)
+    case bannerItem(Book)
+    case carouselItem(Book)
+    case carouselFooterItem(Book)
+    case horizontalItem(Book)
 }
 
 class HomeViewController: UIViewController {
@@ -39,6 +41,7 @@ class HomeViewController: UIViewController {
                                 forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
                                 withReuseIdentifier: HeaderView.id)
         collectionView.register(CarouselFooterCell.self, forCellWithReuseIdentifier: CarouselFooterCell.id)
+        collectionView.register(HorizontalCell.self, forCellWithReuseIdentifier: HorizontalCell.id)
         return collectionView
     }()
     
@@ -49,6 +52,8 @@ class HomeViewController: UIViewController {
     var carouselItemCount: Int = 0
     var carouselDatas: [HomeItem] = []
     var curIndex = 0
+    var horizontalPageTrigger = PublishSubject<Int>()
+    var horizontalPage = 1
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -79,7 +84,8 @@ class HomeViewController: UIViewController {
 extension HomeViewController {
     
     private func bindViewModel() {
-        let input = HomeViewModel.Input(bookTrigger: bookTrigger.asObservable())
+        let input = HomeViewModel.Input(bookTrigger: bookTrigger.asObservable(),
+                                        horizontalPageTrigger: horizontalPageTrigger)
         let output = viewModel.transform(input: input)
         
         output.bookResult
@@ -89,24 +95,29 @@ extension HomeViewController {
                 case .success(let bookResult):
                     var snapshot = NSDiffableDataSourceSnapshot<HomeSection, HomeItem>()
                     
-                    let bannerItems = bookResult.bestseller.item.map { HomeItem.bannerImage($0) }
+                    let bannerItems = bookResult.bestseller.item.map { HomeItem.bannerItem($0) }
                     self?.bannerItemCount = bannerItems.count / 3
                     let bannerSection = HomeSection.banner
                     snapshot.appendSections([bannerSection])
                     snapshot.appendItems(bannerItems, toSection: bannerSection)
                     
-                    let carouselItems = bookResult.editorChoice.item.map { HomeItem.carouselImage($0) }
+                    let carouselItems = bookResult.editorChoice.item.map { HomeItem.carouselItem($0) }
                     self?.carouselItemCount = carouselItems.count / 3
                     let carouselSection = HomeSection.carousel("편집자 추천!")
                     snapshot.appendSections([carouselSection])
                     snapshot.appendItems(carouselItems, toSection: carouselSection)
                     
-                    let carouselFooterItems = bookResult.editorChoice.item.map { HomeItem.carouselFooter($0) }
+                    let carouselFooterItems = bookResult.editorChoice.item.map { HomeItem.carouselFooterItem($0) }
                     self?.carouselDatas = carouselFooterItems
-                    let carouselFirstItem = carouselFooterItems.first ?? HomeItem.carouselFooter(.stub1)
+                    let carouselFirstItem = carouselFooterItems.first ?? HomeItem.carouselFooterItem(.stub1)
                     let carouselFooterSection = HomeSection.carouselFooter
                     snapshot.appendSections([carouselFooterSection])
                     snapshot.appendItems([carouselFirstItem], toSection: carouselFooterSection)
+                    
+                    let horizontalItems = bookResult.newSpecial.item.map { HomeItem.horizontalItem($0) }
+                    let horizontalSeciton = HomeSection.horizontal("주목할 신간 도서")
+                    snapshot.appendSections([horizontalSeciton])
+                    snapshot.appendItems(horizontalItems, toSection: horizontalSeciton)
                     
                     self?.dataSource?.apply(snapshot) { [weak self] in
                         guard let self = self else { return }
@@ -118,6 +129,23 @@ extension HomeViewController {
                                                          animated: false)
                     }
                     
+                case .failure(let error):
+                    print(error)
+                }
+            }.disposed(by: disposeBag)
+        
+        output.horizontalPageResult
+            .observe(on: MainScheduler.instance)
+            .bind { [weak self] result in
+                switch result {
+                case .success(let bookList):
+                    guard let self = self, let dataSource = self.dataSource else { return }
+                    let items = bookList.item.map { HomeItem.horizontalItem($0) }
+                    var snapshot = dataSource.snapshot()
+                    var section = HomeSection.horizontal("주목할 신간 도서")
+                    snapshot.appendItems(items, toSection: section)
+                    dataSource.apply(snapshot, animatingDifferences: true)
+
                 case .failure(let error):
                     print(error)
                 }
@@ -141,6 +169,8 @@ extension HomeViewController {
                 return self?.createCarouselSection()
             case .carouselFooter:
                 return self?.createCarouselFooterSection()
+            case .horizontal:
+                return self?.createHorizontalSection()
             default:
                 return self?.createBannerSection()
             }
@@ -241,6 +271,41 @@ extension HomeViewController {
         return section
     }
     
+    private func createHorizontalSection() -> NSCollectionLayoutSection {
+        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                              heightDimension: .fractionalHeight(1.0))
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        
+        let groupSize = NSCollectionLayoutSize(widthDimension: .absolute(140),
+                                               heightDimension: .absolute(200))
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+        group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 0)
+        
+        let section = NSCollectionLayoutSection(group: group)
+        section.orthogonalScrollingBehavior = .continuous
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 00, bottom: 0, trailing: 20)
+        
+        let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                heightDimension: .absolute(44))
+        let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize,
+                                                                 elementKind: UICollectionView.elementKindSectionHeader,
+                                                                 alignment: .topLeading)
+        section.boundarySupplementaryItems = [header]
+        
+        section.visibleItemsInvalidationHandler = { [weak self] visibleItems, offset, environment in
+            guard let self = self else { return }
+            if offset.y == 934 {
+                let endOffset = CGFloat(160 * 8 * self.horizontalPage + 20) - environment.container.contentSize.width
+                if offset.x >= endOffset {
+                    self.horizontalPage += 1
+                    self.horizontalPageTrigger.onNext(self.horizontalPage)
+                }
+            }
+        }
+        
+        return section
+    }
+    
     private func updateCarouselFooterSection(_ index: Int) {
         guard let dataSource = dataSource else { return }
         let item = [carouselDatas[index]]
@@ -271,7 +336,7 @@ extension HomeViewController {
             collectionView: collectionView,
             cellProvider: { collectionView, indexPath, item in
                 switch item {
-                case .bannerImage(let bestseller):
+                case .bannerItem(let bestseller):
                     let cell = collectionView.dequeueReusableCell(
                         withReuseIdentifier: BestsellcerCell.id,
                         for: indexPath
@@ -282,7 +347,7 @@ extension HomeViewController {
                                     url: bestseller.coverURL)
                     return cell
                     
-                case .carouselImage(let editor):
+                case .carouselItem(let editor):
                     let cell = collectionView.dequeueReusableCell(
                         withReuseIdentifier: EditorChoiceCell.id,
                         for: indexPath
@@ -291,13 +356,22 @@ extension HomeViewController {
                     cell?.configure(url: editor.coverURL)
                     return cell
                     
-                case .carouselFooter(let book):
+                case .carouselFooterItem(let book):
                     let cell = collectionView.dequeueReusableCell(
                         withReuseIdentifier: CarouselFooterCell.id,
                         for: indexPath
                     ) as? CarouselFooterCell
                     
                     cell?.configure(title: book.title, desc: book.desc)
+                    return cell
+                    
+                case .horizontalItem(let special):
+                    let cell = collectionView.dequeueReusableCell(
+                        withReuseIdentifier: HorizontalCell.id,
+                        for: indexPath
+                    ) as? HorizontalCell
+                    
+                    cell?.configure(title: special.title, url: special.coverURL)
                     return cell
                 }
             })
@@ -310,6 +384,8 @@ extension HomeViewController {
             
             switch section {
             case .carousel(let title):
+                (header as? HeaderView)?.configure(title: title)
+            case .horizontal(let title):
                 (header as? HeaderView)?.configure(title: title)
             default:
                 print("Default")

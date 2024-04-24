@@ -11,7 +11,7 @@ import RxSwift
 protocol BookNetworkType {
     func getBestsellerList() -> Observable<BookListModel>
     func getEditorChoiceList() -> Observable<BookListModel>
-    func getNewSpecialList() -> Observable<BookListModel>
+    func getNewSpecialList(_ page: Int) -> Observable<BookListModel>
     func getNewCategoryList() -> Observable<BookListModel>
     func getNewAllList() -> Observable<BookListModel>
 }
@@ -25,15 +25,15 @@ final class BookNetwork: BookNetworkType {
     }
     
     func getBestsellerList() -> Observable<BookListModel> {
-        return network.getItemList(path: listPath, query: "QueryType=Bestseller&Cover=Big")
+        return network.getItemList(path: listPath, query: "QueryType=Bestseller")
     }
     
     func getEditorChoiceList() -> Observable<BookListModel> {
-        return network.getItemList(path: listPath, query: "QueryType=ItemEditorChoice&CategoryId=170&Cover=Big")
+        return network.getItemList(path: listPath, query: "QueryType=ItemEditorChoice&CategoryId=170")
     }
     
-    func getNewSpecialList() -> Observable<BookListModel> {
-        return network.getItemList(path: listPath, query: "QueryType=ItemNewSpecial")
+    func getNewSpecialList(_ page: Int) -> Observable<BookListModel> {
+        return network.getItemList(path: listPath, query: "QueryType=ItemNewSpecial&start=\(page)")
     }
     
     func getNewCategoryList() -> Observable<BookListModel> {
@@ -47,31 +47,52 @@ final class BookNetwork: BookNetworkType {
 
 final class StubBookNetwork: BookNetworkType {
     func getBestsellerList() -> RxSwift.Observable<BookListModel> {
-        let items: [Book] = [Book.stub1, Book.stub2, Book.stub3]
+        let items: [Book] = [
+            Book.stub1.newBook(newId: "1"), Book.stub2.newBook(newId: "1"), Book.stub3.newBook(newId: "1"),
+            Book.stub1.newBook(newId: "2"), Book.stub2.newBook(newId: "2"), Book.stub3.newBook(newId: "2"),
+            Book.stub1.newBook(newId: "3"), Book.stub2.newBook(newId: "3"), Book.stub3.newBook(newId: "3")
+        ]
         let bookListModel: BookListModel = .init(item: items)
         return Observable.just(bookListModel)
     }
     
     func getEditorChoiceList() -> RxSwift.Observable<BookListModel> {
-        let items: [Book] = [Book.stub1, Book.stub2, Book.stub3]
+        let items: [Book] = [
+            Book.stub1.newBook(newId: "1"), Book.stub2.newBook(newId: "1"), Book.stub3.newBook(newId: "1"),
+            Book.stub1.newBook(newId: "2"), Book.stub2.newBook(newId: "2"), Book.stub3.newBook(newId: "2"),
+            Book.stub1.newBook(newId: "3"), Book.stub2.newBook(newId: "3"), Book.stub3.newBook(newId: "3")
+        ]
         let bookListModel: BookListModel = .init(item: items)
         return Observable.just(bookListModel)
     }
     
-    func getNewSpecialList() -> RxSwift.Observable<BookListModel> {
-        let items: [Book] = [Book.stub1, Book.stub2, Book.stub3]
+    func getNewSpecialList(_ page: Int = 1) -> RxSwift.Observable<BookListModel> {
+        let items: [Book] = [
+            Book.stub1.newBook(newId: "\(page)1"), Book.stub2.newBook(newId: "\(page)1"), Book.stub3.newBook(newId: "\(page)1"),
+            Book.stub1.newBook(newId: "\(page)2"), Book.stub2.newBook(newId: "\(page)2"), Book.stub3.newBook(newId: "\(page)2"),
+            Book.stub1.newBook(newId: "\(page)3"), Book.stub2.newBook(newId: "\(page)3"), Book.stub3.newBook(newId: "\(page)3"),
+            Book.stub1.newBook(newId: "\(page)4")
+        ]
         let bookListModel: BookListModel = .init(item: items)
         return Observable.just(bookListModel)
     }
     
     func getNewCategoryList() -> RxSwift.Observable<BookListModel> {
-        let items: [Book] = [Book.stub1, Book.stub2, Book.stub3]
+        let items: [Book] = [
+            Book.stub1.newBook(newId: "1"), Book.stub2.newBook(newId: "1"), Book.stub3.newBook(newId: "1"),
+            Book.stub1.newBook(newId: "2"), Book.stub2.newBook(newId: "2"), Book.stub3.newBook(newId: "2"),
+            Book.stub1.newBook(newId: "3"), Book.stub2.newBook(newId: "3"), Book.stub3.newBook(newId: "3")
+        ]
         let bookListModel: BookListModel = .init(item: items)
         return Observable.just(bookListModel)
     }
     
     func getNewAllList() -> RxSwift.Observable<BookListModel> {
-        let items: [Book] = [Book.stub1, Book.stub2, Book.stub3]
+        let items: [Book] = [
+            Book.stub1.newBook(newId: "1"), Book.stub2.newBook(newId: "1"), Book.stub3.newBook(newId: "1"),
+            Book.stub1.newBook(newId: "2"), Book.stub2.newBook(newId: "2"), Book.stub3.newBook(newId: "2"),
+            Book.stub1.newBook(newId: "3"), Book.stub2.newBook(newId: "3"), Book.stub3.newBook(newId: "3")
+        ]
         let bookListModel: BookListModel = .init(item: items)
         return Observable.just(bookListModel)
     }

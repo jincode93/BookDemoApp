@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1A14688F2BD8D18E00E27D00 /* HorizontalCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A14688E2BD8D18E00E27D00 /* HorizontalCell.swift */; };
 		1A327DF82BD2372F002CAC1B /* BookNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A327DF72BD2372F002CAC1B /* BookNetwork.swift */; };
 		1A327DFC2BD23DF0002CAC1B /* NetworkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A327DFB2BD23DF0002CAC1B /* NetworkProvider.swift */; };
 		1A327DFE2BD24725002CAC1B /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A327DFD2BD24725002CAC1B /* HomeViewModel.swift */; };
@@ -51,6 +52,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1A14688E2BD8D18E00E27D00 /* HorizontalCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HorizontalCell.swift; sourceTree = "<group>"; };
 		1A327DF72BD2372F002CAC1B /* BookNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookNetwork.swift; sourceTree = "<group>"; };
 		1A327DFB2BD23DF0002CAC1B /* NetworkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkProvider.swift; sourceTree = "<group>"; };
 		1A327DFD2BD24725002CAC1B /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
@@ -58,6 +60,7 @@
 		1A3D702D2BD7805C00EC8573 /* BookResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookResult.swift; sourceTree = "<group>"; };
 		1A70A0C52BD3937C00815AFF /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
 		1A70A0C72BD397BA00815AFF /* EditorChoiceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorChoiceCell.swift; sourceTree = "<group>"; };
+		1ACCC46F2BD7E73900988F38 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		1ACFA79B2BD10510003F9EE0 /* BookDemoApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BookDemoApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1ACFA79E2BD10510003F9EE0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1ACFA7A02BD10510003F9EE0 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -70,7 +73,6 @@
 		1ACFA7BB2BD10511003F9EE0 /* BookDemoAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BookDemoAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1ACFA7BF2BD10511003F9EE0 /* BookDemoAppUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookDemoAppUITests.swift; sourceTree = "<group>"; };
 		1ACFA7C12BD10511003F9EE0 /* BookDemoAppUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookDemoAppUITestsLaunchTests.swift; sourceTree = "<group>"; };
-		1ACFA7CE2BD10565003F9EE0 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		1ACFA7D02BD10897003F9EE0 /* Const.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Const.swift; sourceTree = "<group>"; };
 		1ACFA7D22BD1099C003F9EE0 /* Network.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Network.swift; sourceTree = "<group>"; };
 		1ACFA7DE2BD10CF0003F9EE0 /* Book.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Book.swift; sourceTree = "<group>"; };
@@ -141,6 +143,7 @@
 				1A70A0C52BD3937C00815AFF /* HeaderView.swift */,
 				1A70A0C72BD397BA00815AFF /* EditorChoiceCell.swift */,
 				1ADA68652BD4F09A0019E5A0 /* CarouselFooterCell.swift */,
+				1A14688E2BD8D18E00E27D00 /* HorizontalCell.swift */,
 			);
 			path = Cells;
 			sourceTree = "<group>";
@@ -148,7 +151,7 @@
 		1ACFA7922BD10510003F9EE0 = {
 			isa = PBXGroup;
 			children = (
-				1ACFA7CE2BD10565003F9EE0 /* Config.xcconfig */,
+				1ACCC46F2BD7E73900988F38 /* Config.xcconfig */,
 				1ACFA79D2BD10510003F9EE0 /* BookDemoApp */,
 				1ACFA7B42BD10511003F9EE0 /* BookDemoAppTests */,
 				1ACFA7BE2BD10511003F9EE0 /* BookDemoAppUITests */,
@@ -373,6 +376,7 @@
 				1ACFA7A32BD10510003F9EE0 /* HomeViewController.swift in Sources */,
 				1A70A0C82BD397BA00815AFF /* EditorChoiceCell.swift in Sources */,
 				1A327DF82BD2372F002CAC1B /* BookNetwork.swift in Sources */,
+				1A14688F2BD8D18E00E27D00 /* HorizontalCell.swift in Sources */,
 				1ACFA7DF2BD10CF0003F9EE0 /* Book.swift in Sources */,
 				1ACFA7D12BD10897003F9EE0 /* Const.swift in Sources */,
 				1A3D702E2BD7805C00EC8573 /* BookResult.swift in Sources */,
@@ -431,7 +435,7 @@
 /* Begin XCBuildConfiguration section */
 		1ACFA7C32BD10511003F9EE0 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 1ACFA7CE2BD10565003F9EE0 /* Config.xcconfig */;
+			baseConfigurationReference = 1ACCC46F2BD7E73900988F38 /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
