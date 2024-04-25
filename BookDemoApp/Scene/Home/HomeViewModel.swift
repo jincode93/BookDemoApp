@@ -18,21 +18,27 @@ final class HomeViewModel {
     
     init() {
         let provider = NetworkProvider()
-        bookNetwork = provider.makeBookNetwork()
-//        bookNetwork = provider.makeStubBookNetwork()
+//        bookNetwork = provider.makeBookNetwork()
+        bookNetwork = provider.makeStubBookNetwork()
     }
     
     struct Input {
         let bookTrigger: Observable<Void>
         let horizontalPageTrigger: Observable<Int>
+        let selectedCategoryTrigger: Observable<Int>
     }
     
     struct Output {
         let bookResult: Observable<Result<BookResult, Error>>
         let horizontalPageResult: Observable<Result<BookListModel, Error>>
+        let categoryResult: Observable<Result<BookListModel, Error>>
     }
     
     func transform(input: Input) -> Output {
+        let defaultCategorys: CategoryType = .init(categorys: [.economy, .science, .comic, .novel, .social, .travel, .essay, .history, .test, .kids])
+        
+        let categoryList: Observable<CategoryType> = Observable.just(defaultCategorys)
+        
         let bestsellerList: Observable<BookListModel> = self.bookNetwork.getBestsellerList()
             .map { bookList in
                 let items = bookList.item
@@ -53,9 +59,11 @@ final class HomeViewModel {
             return Observable.combineLatest(
                 bestsellerList,
                 editorChoiceList,
-                self.bookNetwork.getNewSpecialList(1)
-            ) { bestseller, editorChoice, newSpecial -> Result<BookResult, Error> in
-                    .success(BookResult(bestseller: bestseller, editorChoice: editorChoice, newSpecial: newSpecial))
+                self.bookNetwork.getNewSpecialList(1),
+                categoryList,
+                self.bookNetwork.getNewCategoryList(defaultCategorys.categorys[0].id)
+            ) { bestseller, editorChoice, newSpecial, categoryType, category -> Result<BookResult, Error> in
+                    .success(BookResult(bestseller: bestseller, editorChoice: editorChoice, newSpecial: newSpecial, categoryType: categoryType, newCategory: category))
             }.catch { error in
                 return Observable.just(.failure(error))
             }
@@ -70,6 +78,17 @@ final class HomeViewModel {
                 }
             }
         
-        return Output(bookResult: bookResult, horizontalPageResult: horizontalPageResult)
+        let categoryResult: Observable<Result<BookListModel, Error>> = input.selectedCategoryTrigger
+            .flatMap { [unowned self] cid -> Observable<Result<BookListModel, Error>> in
+                return self.bookNetwork.getNewCategoryList(cid).map { bookList in
+                    .success(bookList)
+                }.catch { error in
+                    return Observable.just(.failure(error))
+                }
+            }
+        
+        return Output(bookResult: bookResult,
+                      horizontalPageResult: horizontalPageResult,
+                      categoryResult: categoryResult)
     }
 }

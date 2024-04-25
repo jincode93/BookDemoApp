@@ -25,7 +25,7 @@ final class HeaderView: UICollectionReusableView {
         addSubview(titleLabel)
         
         titleLabel.snp.makeConstraints { make in
-            make.leading.equalToSuperview().inset(20)
+            make.leading.equalToSuperview()
             make.trailing.top.equalToSuperview()
         }
     }

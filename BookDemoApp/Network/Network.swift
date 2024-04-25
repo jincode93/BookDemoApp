@@ -19,8 +19,8 @@ class Network<T: Decodable> {
         self.queue = ConcurrentDispatchQueueScheduler(qos: .background)
     }
     
-    func getItemList(path: String, query: String = "") -> Observable<T> {
-        let fullPath = "\(endpoint)\(path)?ttbkey=\(APIKey)&output=js&\(query)&MaxResults=10&SearchTarget=Book&Cover=Big&Version=20131101"
+    func getItemList(path: String, query: String = "", maxResults: Int = 10) -> Observable<T> {
+        let fullPath = "\(endpoint)\(path)?ttbkey=\(APIKey)&output=js&\(query)&MaxResults=\(maxResults)&SearchTarget=Book&Cover=Big&Version=20131101"
 
         return RxAlamofire.data(.get, fullPath)
             .observe(on: queue)

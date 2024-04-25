@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class HorizontalCell: UICollectionViewCell {
     static let id = "HorizontalCell"
@@ -35,13 +36,12 @@ final class HorizontalCell: UICollectionViewCell {
         addSubview(titleLabel)
         
         imageView.snp.makeConstraints { make in
-            make.horizontalEdges.equalToSuperview()
-            make.top.equalToSuperview()
+            make.top.horizontalEdges.equalToSuperview()
             make.height.equalTo(180)
         }
         
         titleLabel.snp.makeConstraints { make in
-            make.top.equalTo(imageView.snp.bottom).offset(8)
+            make.top.equalTo(imageView.snp.bottom).offset(6)
             make.horizontalEdges.equalToSuperview().inset(2)
         }
     }

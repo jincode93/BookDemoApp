@@ -12,7 +12,7 @@ protocol BookNetworkType {
     func getBestsellerList() -> Observable<BookListModel>
     func getEditorChoiceList() -> Observable<BookListModel>
     func getNewSpecialList(_ page: Int) -> Observable<BookListModel>
-    func getNewCategoryList() -> Observable<BookListModel>
+    func getNewCategoryList(_ cid: Int) -> Observable<BookListModel>
     func getNewAllList() -> Observable<BookListModel>
 }
 
@@ -36,8 +36,8 @@ final class BookNetwork: BookNetworkType {
         return network.getItemList(path: listPath, query: "QueryType=ItemNewSpecial&start=\(page)")
     }
     
-    func getNewCategoryList() -> Observable<BookListModel> {
-        return network.getItemList(path: listPath, query: "QueryType=ItemNewAll&CategoryId=170")
+    func getNewCategoryList(_ cid: Int) -> Observable<BookListModel> {
+        return network.getItemList(path: listPath, query: "QueryType=ItemNewAll&CategoryId=\(cid)", maxResults: 20)
     }
     
     func getNewAllList() -> Observable<BookListModel> {
@@ -66,7 +66,7 @@ final class StubBookNetwork: BookNetworkType {
         return Observable.just(bookListModel)
     }
     
-    func getNewSpecialList(_ page: Int = 1) -> RxSwift.Observable<BookListModel> {
+    func getNewSpecialList(_ page: Int) -> RxSwift.Observable<BookListModel> {
         let items: [Book] = [
             Book.stub1.newBook(newId: "\(page)1"), Book.stub2.newBook(newId: "\(page)1"), Book.stub3.newBook(newId: "\(page)1"),
             Book.stub1.newBook(newId: "\(page)2"), Book.stub2.newBook(newId: "\(page)2"), Book.stub3.newBook(newId: "\(page)2"),
@@ -77,11 +77,11 @@ final class StubBookNetwork: BookNetworkType {
         return Observable.just(bookListModel)
     }
     
-    func getNewCategoryList() -> RxSwift.Observable<BookListModel> {
+    func getNewCategoryList(_ cid: Int) -> RxSwift.Observable<BookListModel> {
         let items: [Book] = [
-            Book.stub1.newBook(newId: "1"), Book.stub2.newBook(newId: "1"), Book.stub3.newBook(newId: "1"),
-            Book.stub1.newBook(newId: "2"), Book.stub2.newBook(newId: "2"), Book.stub3.newBook(newId: "2"),
-            Book.stub1.newBook(newId: "3"), Book.stub2.newBook(newId: "3"), Book.stub3.newBook(newId: "3")
+            Book.stub1.newBook(newId: "\(cid)1"), Book.stub2.newBook(newId: "\(cid)1"), Book.stub3.newBook(newId: "\(cid)1"),
+            Book.stub1.newBook(newId: "\(cid)2"), Book.stub2.newBook(newId: "\(cid)2"), Book.stub3.newBook(newId: "\(cid)2"),
+            Book.stub1.newBook(newId: "\(cid)3"), Book.stub2.newBook(newId: "\(cid)3"), Book.stub3.newBook(newId: "\(cid)3")
         ]
         let bookListModel: BookListModel = .init(item: items)
         return Observable.just(bookListModel)
