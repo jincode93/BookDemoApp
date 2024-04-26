@@ -26,12 +26,14 @@ final class HomeViewModel {
         let bookTrigger: Observable<Void>
         let horizontalPageTrigger: Observable<Int>
         let selectedCategoryTrigger: Observable<Int>
+        let verticalPageTrigger: Observable<Int>
     }
     
     struct Output {
         let bookResult: Observable<Result<BookResult, Error>>
         let horizontalPageResult: Observable<Result<BookListModel, Error>>
         let categoryResult: Observable<Result<BookListModel, Error>>
+        let verticalPageResult: Observable<Result<BookListModel, Error>>
     }
     
     func transform(input: Input) -> Output {
@@ -61,9 +63,10 @@ final class HomeViewModel {
                 editorChoiceList,
                 self.bookNetwork.getNewSpecialList(1),
                 categoryList,
-                self.bookNetwork.getNewCategoryList(defaultCategorys.categorys[0].id)
-            ) { bestseller, editorChoice, newSpecial, categoryType, category -> Result<BookResult, Error> in
-                    .success(BookResult(bestseller: bestseller, editorChoice: editorChoice, newSpecial: newSpecial, categoryType: categoryType, newCategory: category))
+                self.bookNetwork.getNewCategoryList(defaultCategorys.categorys[0].id),
+                self.bookNetwork.getNewAllList(1)
+            ) { bestseller, editorChoice, newSpecial, categoryType, category, newAll -> Result<BookResult, Error> in
+                    .success(BookResult(bestseller: bestseller, editorChoice: editorChoice, newSpecial: newSpecial, categoryType: categoryType, newCategory: category, newAll: newAll))
             }.catch { error in
                 return Observable.just(.failure(error))
             }
@@ -87,8 +90,18 @@ final class HomeViewModel {
                 }
             }
         
+        let verticalPageResult: Observable<Result<BookListModel, Error>> = input.verticalPageTrigger
+            .flatMap { [unowned self] pageNum -> Observable<Result<BookListModel, Error>> in
+                return self.bookNetwork.getNewAllList(pageNum).map { bookList in
+                    .success(bookList)
+                }.catch { error in
+                    return Observable.just(.failure(error))
+                }
+            }
+        
         return Output(bookResult: bookResult,
                       horizontalPageResult: horizontalPageResult,
-                      categoryResult: categoryResult)
+                      categoryResult: categoryResult,
+                      verticalPageResult: verticalPageResult)
     }
 }

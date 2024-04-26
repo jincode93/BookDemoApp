@@ -14,6 +14,7 @@ enum HomeSection: Hashable {
     case horizontal(String)
     case categoryType(String)
     case category
+    case vertical(String)
 }
 
 enum HomeItem: Hashable {
@@ -23,4 +24,5 @@ enum HomeItem: Hashable {
     case horizontalItem(Book)
     case categoryTypeItem(Category)
     case categoryItem(Book)
+    case verticalItem(Book)
 }

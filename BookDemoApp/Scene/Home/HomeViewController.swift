@@ -24,13 +24,16 @@ class HomeViewController: UIViewController {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: self.createLayout())
         collectionView.register(BestsellcerCell.self, forCellWithReuseIdentifier: BestsellcerCell.id)
         collectionView.register(EditorChoiceCell.self, forCellWithReuseIdentifier: EditorChoiceCell.id)
-        collectionView.register(HeaderView.self,
-                                forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
-                                withReuseIdentifier: HeaderView.id)
         collectionView.register(CarouselFooterCell.self, forCellWithReuseIdentifier: CarouselFooterCell.id)
         collectionView.register(HorizontalCell.self, forCellWithReuseIdentifier: HorizontalCell.id)
         collectionView.register(CategoryTypeCell.self, forCellWithReuseIdentifier: CategoryTypeCell.id)
         collectionView.register(CategoryCell.self, forCellWithReuseIdentifier: CategoryCell.id)
+        collectionView.register(VerticalCell.self, forCellWithReuseIdentifier: VerticalCell.id)
+        
+        collectionView.register(HeaderView.self,
+                                forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+                                withReuseIdentifier: HeaderView.id)
+        
         return collectionView
     }()
     
@@ -39,12 +42,14 @@ class HomeViewController: UIViewController {
     let bookTrigger = PublishSubject<Void>()
     let horizontalPageTrigger = PublishSubject<Int>()
     var selectedCategoryTrigger = PublishSubject<Int>()
+    let verticalPageTrigger = PublishSubject<Int>()
     
     var bannerItemCount: Int = 0
     var carouselItemCount: Int = 0
     var carouselDatas: [HomeItem] = []
     var curIndex = 0
     var horizontalPage = 1
+    var verticalPage = 1
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -80,7 +85,8 @@ extension HomeViewController {
     private func bindViewModel() {
         let input = HomeViewModel.Input(bookTrigger: bookTrigger.asObservable(),
                                         horizontalPageTrigger: horizontalPageTrigger,
-                                        selectedCategoryTrigger: selectedCategoryTrigger)
+                                        selectedCategoryTrigger: selectedCategoryTrigger,
+                                        verticalPageTrigger: verticalPageTrigger)
         let output = viewModel.transform(input: input)
         
         output.bookResult
@@ -124,6 +130,11 @@ extension HomeViewController {
                     snapshot.appendSections([categorySection])
                     snapshot.appendItems(categoryItems, toSection: categorySection)
                     
+                    let newAllItems = bookResult.newAll.item.map { HomeItem.verticalItem($0) }
+                    let newAllSection = HomeSection.vertical("신간 도서")
+                    snapshot.appendSections([newAllSection])
+                    snapshot.appendItems(newAllItems, toSection: newAllSection)
+                    
                     self?.dataSource?.apply(snapshot) { [weak self] in
                         guard let self = self else { return }
                         self.collectionView.scrollToItem(at: [0, bannerItemCount],
@@ -149,7 +160,7 @@ extension HomeViewController {
                     var snapshot = dataSource.snapshot()
                     let section = HomeSection.horizontal("주목할 신간 도서")
                     snapshot.appendItems(items, toSection: section)
-                    dataSource.apply(snapshot, animatingDifferences: true)
+                    dataSource.apply(snapshot)
 
                 case .failure(let error):
                     print(error)
@@ -169,6 +180,23 @@ extension HomeViewController {
                     snapshot.appendItems(items, toSection: section)
                     dataSource.apply(snapshot)
                     
+                case .failure(let error):
+                    print(error)
+                }
+            }.disposed(by: disposeBag)
+        
+        output.verticalPageResult
+            .observe(on: MainScheduler.instance)
+            .bind { [weak self] result in
+                switch result {
+                case .success(let bookList):
+                    guard let self = self, let dataSource = self.dataSource else { return }
+                    let items = bookList.item.map { HomeItem.verticalItem($0) }
+                    var snapshot = dataSource.snapshot()
+                    let section = HomeSection.vertical("신간 도서")
+                    snapshot.appendItems(items, toSection: section)
+                    dataSource.applySnapshotUsingReloadData(snapshot)
+
                 case .failure(let error):
                     print(error)
                 }
@@ -195,9 +223,6 @@ extension HomeViewController {
 extension HomeViewController {
     
     private func createLayout() -> UICollectionViewCompositionalLayout {
-        let config = UICollectionViewCompositionalLayoutConfiguration()
-        config.interSectionSpacing = 30
-        
         return UICollectionViewCompositionalLayout(sectionProvider: { [weak self] sectionIndex, _ in
             let section = self?.dataSource?.sectionIdentifier(for: sectionIndex)
             switch section {
@@ -213,10 +238,12 @@ extension HomeViewController {
                 return self?.createCategoryTypeSection()
             case .category:
                 return self?.createCategorySection()
+            case .vertical:
+                return self?.createVerticalSection()
             default:
                 return self?.createBannerSection()
             }
-        }, configuration: config)
+        })
     }
     
     private func createBannerSection() -> NSCollectionLayoutSection {
@@ -230,6 +257,7 @@ extension HomeViewController {
         
         let section = NSCollectionLayoutSection(group: group)
         section.orthogonalScrollingBehavior = .groupPaging
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 40, trailing: 0)
         section.visibleItemsInvalidationHandler = { [weak self] visibleItems, offset, environment in
             // offset.y == 0 && visibleItems.count == 2 조건을 넣지 않으면 세로 스크롤에도 반응하게 됨
             if offset.y == 0 && visibleItems.count == 2 {
@@ -255,7 +283,7 @@ extension HomeViewController {
         
         let section = NSCollectionLayoutSection(group: group)
         section.orthogonalScrollingBehavior = .groupPagingCentered
-        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 20, bottom: 20, trailing: 20)
         
         let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
                                                 heightDimension: .absolute(44))
@@ -284,7 +312,7 @@ extension HomeViewController {
                 
                 // 아이템이 중심부에 왔을 때 무한 스크롤을 위해 자동 스크롤 해주기
                 guard let lastIndex = visibleItems.last?.indexPath.row, let self = self else { return }
-                if distanceFromCenter >= 0 && distanceFromCenter < 1 && offset.y == 430 {
+                if distanceFromCenter >= 0 && distanceFromCenter < 1 && offset.y == 440 {
                     self.handleVisibleItemIndexPath(lastIndex,
                                                     sectionNum: 1,
                                                     count: self.carouselItemCount)
@@ -297,7 +325,6 @@ extension HomeViewController {
                 }
             }
         }
-        
         return section
     }
     
@@ -311,7 +338,7 @@ extension HomeViewController {
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 10, trailing: 0)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 40, trailing: 0)
         return section
     }
     
@@ -327,7 +354,7 @@ extension HomeViewController {
         let section = NSCollectionLayoutSection(group: group)
         section.orthogonalScrollingBehavior = .continuous
         section.interGroupSpacing = 10
-        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 20, bottom: 20, trailing: 20)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 20, bottom: 40, trailing: 20)
         
         let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
                                                 heightDimension: .absolute(44))
@@ -339,7 +366,7 @@ extension HomeViewController {
         section.visibleItemsInvalidationHandler = { [weak self] visibleItems, offset, environment in
             guard let self = self else { return }
             if offset.y == 944 {
-                let endOffset = CGFloat(160 * 8 * self.horizontalPage + 20) - environment.container.contentSize.width
+                let endOffset = CGFloat(120 * 18 * self.horizontalPage + 20) - environment.container.contentSize.width
                 if offset.x >= endOffset {
                     self.horizontalPage += 1
                     self.horizontalPageTrigger.onNext(self.horizontalPage)
@@ -362,7 +389,7 @@ extension HomeViewController {
         let section = NSCollectionLayoutSection(group: group)
         section.orthogonalScrollingBehavior = .continuous
         section.interGroupSpacing = 10
-        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 20, bottom: 20, trailing: 20)
         
         let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
                                                 heightDimension: .absolute(44))
@@ -383,11 +410,43 @@ extension HomeViewController {
         let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
                                                heightDimension: .absolute(240))
         let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, repeatingSubitem: item, count: 2)
-        group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 20)
+        group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 40, trailing: 20)
         
         let section = NSCollectionLayoutSection(group: group)
         section.orthogonalScrollingBehavior = .continuous
         section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 0)
+        
+        return section
+    }
+    
+    private func createVerticalSection() -> NSCollectionLayoutSection {
+        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.5),
+                                              heightDimension: .fractionalHeight(1.0))
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        
+        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                               heightDimension: .absolute(300))
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: 2)
+        group.interItemSpacing = .fixed(20)
+        group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 10, trailing: 0)
+        
+        let section = NSCollectionLayoutSection(group: group)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20)
+        
+        let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                heightDimension: .absolute(44))
+        let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize,
+                                                                 elementKind: UICollectionView.elementKindSectionHeader,
+                                                                 alignment: .topLeading)
+        section.boundarySupplementaryItems = [header]
+        
+        section.visibleItemsInvalidationHandler = { [weak self] visibleItems, offset, environment in
+            guard let self = self else { return }
+            if offset.y >= 900 + CGFloat(300 * 8 * self.verticalPage) {
+                self.verticalPage += 1
+                self.verticalPageTrigger.onNext(self.verticalPage)
+            }
+        }
         
         return section
     }
@@ -477,6 +536,15 @@ extension HomeViewController {
                     
                     cell?.configure(title: category.title, desc: category.desc, url: category.coverURL)
                     return cell
+                    
+                case .verticalItem(let newAll):
+                    let cell = collectionView.dequeueReusableCell(
+                        withReuseIdentifier: VerticalCell.id,
+                        for: indexPath
+                    ) as? VerticalCell
+                    
+                    cell?.configure(title: newAll.title, url: newAll.coverURL)
+                    return cell
                 }
             })
         
@@ -487,7 +555,7 @@ extension HomeViewController {
             let section = self?.dataSource?.sectionIdentifier(for: indexPath.section)
             
             switch section {
-            case .carousel(let title), .horizontal(let title), .categoryType(let title):
+            case .carousel(let title), .horizontal(let title), .categoryType(let title), .vertical(let title):
                 (header as? HeaderView)?.configure(title: title)
             default:
                 print("Default")

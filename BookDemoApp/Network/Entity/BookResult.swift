@@ -13,5 +13,5 @@ struct BookResult {
     let newSpecial: BookListModel
     let categoryType: CategoryType
     let newCategory: BookListModel
-//    let newAll: BookListModel
+    let newAll: BookListModel
 }
